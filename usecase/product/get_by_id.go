@@ -1,17 +1,17 @@
 package product
 
 import (
-	"base-gin-golang/domain/entity"
+	"base-gin-go/domain/entity"
 
-	"base-gin-golang/domain/repository"
+	"github.com/gin-gonic/gin"
 )
 
-type GetProductByIdInput struct {
-	Id int64
+type GetProductByIDInput struct {
+	ID int64
 }
 
-func GetById(productRepository repository.ProductRepository, input *GetProductByIdInput) (*entity.Product, error) {
-	product, err := productRepository.GetById(input.Id)
+func (pu *productUseCase) GetByID(ctx *gin.Context, input *GetProductByIDInput) (*entity.Product, error) {
+	product, err := pu.productRepository.GetByID(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}

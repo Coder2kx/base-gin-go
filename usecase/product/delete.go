@@ -1,19 +1,17 @@
 package product
 
-import (
-	"base-gin-golang/domain/repository"
-)
+import "github.com/gin-gonic/gin"
 
 type DeleteProductInput struct {
-	Id int64
+	ID int64
 }
 
 type DeleteProductOutPut struct {
 	RowsAffected int64 `json:"rowsAffected"`
 }
 
-func Delete(productRepository repository.ProductRepository, input *DeleteProductInput) (*DeleteProductOutPut, error) {
-	rowsAffected, err := productRepository.Delete(input.Id)
+func (pu *productUseCase) Delete(ctx *gin.Context, input *DeleteProductInput) (*DeleteProductOutPut, error) {
+	rowsAffected, err := pu.productRepository.Delete(ctx, input.ID)
 	if err != nil {
 		return &DeleteProductOutPut{
 			RowsAffected: 0,

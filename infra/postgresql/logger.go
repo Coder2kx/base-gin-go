@@ -1,7 +1,7 @@
 package postgresql
 
 import (
-	"base-gin-golang/config"
+	"base-gin-go/config"
 	"context"
 	"errors"
 	"time"
@@ -22,7 +22,7 @@ type Logger struct {
 func newLogger(cfg *config.Environment) *Logger {
 	return &Logger{
 		SkipErrRecordNotFound: true,
-		Debug:                 cfg.RunMode == "debug",
+		Debug:                 cfg.DebugMode,
 	}
 }
 
@@ -31,15 +31,15 @@ func (l *Logger) LogMode(gormlogger.LogLevel) gormlogger.Interface {
 }
 
 func (l *Logger) Info(ctx context.Context, s string, args ...interface{}) {
-	log.WithContext(ctx).Infof(s, args)
+	log.WithContext(ctx).Infof(s, args...)
 }
 
 func (l *Logger) Warn(ctx context.Context, s string, args ...interface{}) {
-	log.WithContext(ctx).Warnf(s, args)
+	log.WithContext(ctx).Warnf(s, args...)
 }
 
 func (l *Logger) Error(ctx context.Context, s string, args ...interface{}) {
-	log.WithContext(ctx).Errorf(s, args)
+	log.WithContext(ctx).Errorf(s, args...)
 }
 
 func (l *Logger) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
@@ -49,17 +49,19 @@ func (l *Logger) Trace(ctx context.Context, begin time.Time, fc func() (string, 
 	if l.SourceField != "" {
 		fields[l.SourceField] = utils.FileWithLineNum()
 	}
+	processID, ok := ctx.Value("processID").(string)
+	if ok {
+		fields["processID"] = processID
+	}
 	if err != nil && !(errors.Is(err, gorm.ErrRecordNotFound) && l.SkipErrRecordNotFound) {
 		fields[log.ErrorKey] = err
 		log.WithContext(ctx).WithFields(fields).Errorf("%s [%s]", sql, elapsed)
 		return
 	}
-
 	if l.SlowThreshold != 0 && elapsed > l.SlowThreshold {
 		log.WithContext(ctx).WithFields(fields).Warnf("%s [%s]", sql, elapsed)
 		return
 	}
-
 	if l.Debug {
 		log.WithContext(ctx).WithFields(fields).Infof("%s [%s]", sql, elapsed)
 	}

@@ -1,27 +1,26 @@
 package product
 
 import (
-	"base-gin-golang/domain/entity"
+	"base-gin-go/domain/entity"
 
-	"base-gin-golang/domain/repository"
-
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 )
 
 type UpdateProductInput struct {
-	Id          int64
+	ID          int64
 	ProductCode string `json:"productCode" binding:"required"`
 	ProductName string `json:"productName" binding:"required"`
 	Price       int    `json:"price" binding:"required"`
 }
 
-func Update(productRepository repository.ProductRepository, input *UpdateProductInput) (*entity.Product, error) {
+func (pu *productUseCase) Update(ctx *gin.Context, input *UpdateProductInput) (*entity.Product, error) {
 	data := &entity.Product{}
 	err := copier.Copy(data, input)
 	if err != nil {
 		return nil, err
 	}
-	newProduct, err := productRepository.Update(input.Id, data)
+	newProduct, err := pu.productRepository.Update(ctx, input.ID, data)
 	if err != nil {
 		return nil, err
 	}

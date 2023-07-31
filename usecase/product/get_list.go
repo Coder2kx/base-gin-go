@@ -1,19 +1,19 @@
 package product
 
 import (
-	"base-gin-golang/domain/entity"
+	"base-gin-go/domain/entity"
 
-	"base-gin-golang/domain/repository"
+	"github.com/gin-gonic/gin"
 )
 
 type GetListProductInput struct {
-	PageIndex int     `form:"pageIndex"`
-	PageSize  int     `form:"pageSize"`
-	Order     *string `form:"order"`
+	PageIndex int    `form:"pageIndex"`
+	PageSize  int    `form:"pageSize"`
+	Order     string `form:"order"`
 }
 
-func GetList(productRepository repository.ProductRepository, input *GetListProductInput) ([]*entity.Product, error) {
-	products, err := productRepository.GetList(entity.GetListProductOption{
+func (pu *productUseCase) GetList(ctx *gin.Context, input *GetListProductInput) ([]*entity.Product, error) {
+	products, err := pu.productRepository.GetList(ctx, entity.GetListProductOption{
 		GetListOption: entity.GetListOption{
 			PageIndex: input.PageIndex,
 			PageSize:  input.PageSize,
